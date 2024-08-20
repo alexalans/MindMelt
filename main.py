@@ -4,33 +4,46 @@ class MindMeltApp:
     def __init__(self, root):
         self.root = root
         self.root.title("MindMelt")
-        self.root.geometry("500x400")
-        self.root.configure(bg="lightblue")
+        self.background = "thistle2"
+        self.root.configure(bg=self.background, padx=20, pady=20)
 
-        self.label = tk.Label(root, text="What's on your mind?", font=("Helvetica", 16), bg="lightblue")
-        self.label.pack(pady=10)
+        # Logo
 
-        self.textbox = tk.Text(root, height=10, width=50, font=("Helvetica", 12), fg="black")
-        self.textbox.pack(pady=10)
+        self.canvas = tk.Canvas()
+        self.logo = tk.PhotoImage(file="mindmelt_logo.png")
+        self.canvas.config(width=400, height=120, bg=self.background, highlightthickness=0)
+        self.canvas.create_image(200, 60, image=self.logo)
+        self.canvas.grid(column=1, row=0, columnspan=3, padx=10, pady=10)
 
+        # Textbox
+        self.textbox = tk.Text(root, height=15, width=50, font=("Helvetica", 12, "italic"), fg="black", wrap="word", padx=10, pady=10)
+        self.textbox.grid(row=2, column=0, columnspan=5, padx=10, pady=10, sticky="W" + "E" + "N" + "S")
+        self.textbox.insert(1.0, "Type your thoughts, worries or secrets here.\n\n"
+                                 "Watch them disappear when you stop typing for more than 3 seconds."
+                                 "\n\nOr click in the textbox to make your text disappear instantly."
+                                 "\n\nClick here to start typing.")
         self.textbox.bind("<KeyRelease>", self.reset_timer)
+        self.textbox.bind("<Button-1>", self.clear)
 
-        self.color_frame = tk.Frame(root, bg="lightblue")
-        self.color_frame.pack(pady=10)
+        # Color Buttons
+        self.create_color_button("Black", "grey13", 3, 0)
+        self.create_color_button("Red", "firebrick3", 3, 1)
+        self.create_color_button("Blue", "DodgerBlue2", 3, 2)
+        self.create_color_button("Green", "PaleGreen4", 3, 3)
+        self.create_color_button("Invisible ink", "white", 3, 4)
 
-        self.create_color_button("Black", "black")
-        self.create_color_button("Red", "red")
-        self.create_color_button("Blue", "blue")
-        self.create_color_button("Green", "green")
-        self.create_color_button("Purple", "purple")
-
+        # Configuration
         self.melting_speed = 100  # Speed of text melting in milliseconds
         self.typing_delay = 5000  # Time before text starts disappearing (5 seconds)
         self.timer_id = None
 
-    def create_color_button(self, name, color):
-        button = tk.Button(self.color_frame, text=name, bg=color, fg="white", width=8, command=lambda: self.change_text_color(color))
-        button.pack(side=tk.LEFT, padx=5)
+    def create_color_button(self, name, color, row, column):
+        if color != "white":
+            fg = "white"
+        else:
+            fg = "black"
+        button = tk.Button(self.root, text=name, font=("Helvetica", 11, "bold"), bg=color, fg=fg, width=15, command=lambda: self.change_text_color(color))
+        button.grid(row=row, column=column, padx=3, pady=15, sticky="W" + "E" + "N" + "S")
 
     def change_text_color(self, color):
         self.textbox.config(fg=color)
@@ -51,6 +64,9 @@ class MindMeltApp:
             self.root.after(self.melting_speed, self.melt, text, index + 1)
         else:
             self.textbox.delete("1.0", "end")
+
+    def clear(self, event):
+        self.textbox.delete(1.0, "end")
 
 if __name__ == "__main__":
     root = tk.Tk()
