@@ -33,8 +33,8 @@ class MindMeltApp:
         self.create_color_button("Invisible ink", "white", 3, 4)
 
         # Configuration
-        self.melting_speed = 100  # Speed of text melting in milliseconds
-        self.typing_delay = 5000  # Time before text starts disappearing (5 seconds)
+        self.melting_speed = 50  # Speed of text melting in milliseconds
+        self.typing_delay = 3000  # Time before text starts disappearing (5 seconds)
         self.timer_id = None
 
     def create_color_button(self, name, color, row, column):
@@ -58,10 +58,16 @@ class MindMeltApp:
         if current_text:
             self.melt(current_text, 0)
 
-    def melt(self, text, index):
-        if index < len(text):
-            self.textbox.delete(f"1.{index}")
-            self.root.after(self.melting_speed, self.melt, text, index + 1)
+    def melt(self, text, loops):
+        loops += 1
+        chars = len(self.textbox.get("1.0", "end-1c"))
+        if chars > 0:
+            if 65 > loops:
+                self.textbox.delete("1.0")
+                self.root.after(self.melting_speed, self.melt, text, loops)
+            elif 100 > loops:
+                self.textbox.delete("1.0", "3.0")
+                self.root.after(self.melting_speed, self.melt, text, loops)
         else:
             self.textbox.delete("1.0", "end")
 
